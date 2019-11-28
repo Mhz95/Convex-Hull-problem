@@ -62,7 +62,7 @@ public class ConvexHullProject extends Application {
 		final NumberAxis axis = new NumberAxis(0, 1.15, 0.1);
 
 		axis.setPrefWidth(35);
-		axis.setMinorTickCount(20);
+		axis.setMinorTickCount(10);
 
 		axis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(axis) {
 			@Override
