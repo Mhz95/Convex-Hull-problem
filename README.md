@@ -2,7 +2,7 @@
 
 ### Screenshot
 
-<img src="https://github.com/Mhz95/Project512/blob/master/screenshot.png" width="200">
+<img src="https://github.com/Mhz95/Project512/blob/master/screenshot.png" width="500">
 
 
 ### Algorithm
