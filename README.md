@@ -2,7 +2,7 @@
 
 ### Screenshot
 
-![alt text](https://github.com/Mhz95/Project512/screenshot.png "CSC 512 Algorithm")
+![alt text](https://github.com/Mhz95/Project512/blob/master/screenshot.png "CSC 512 Algorithm")
 
 ### Algorithm
 
