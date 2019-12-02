@@ -1,4 +1,11 @@
-package edu.ksu.algorithms.convexhull;
+package ConvexHull_Project;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -22,24 +29,10 @@ import javafx.stage.Stage;
  */
 public class ConvexHullProject extends Application {
 
-	public static double xPoints[] = { 0.00622, 0.05208, 0.05668, 0.08892, 0.09462, 0.10133, 0.1067, 0.10372, 0.12248,
-			0.14415, 0.14647, 0.15026, 0.16889, 0.16964, 0.18846, 0.19974, 0.2078, 0.21485, 0.24201, 0.26569, 0.27135,
-			0.28165, 0.29008, 0.29605, 0.30448, 0.31439, 0.31777, 0.34873, 0.34935, 0.34871, 0.3986, 0.39815, 0.4116,
-			0.41682, 0.41576, 0.42069, 0.41933, 0.42685, 0.44873, 0.45347, 0.49298, 0.51562, 0.53466, 0.54323, 0.5608,
-			0.5764, 0.57627, 0.58084, 0.58841, 0.59543, 0.62421, 0.66625, 0.6648, 0.67247, 0.67998, 0.68418, 0.69529,
-			0.69411, 0.70149, 0.72099, 0.72598, 0.74849, 0.75319, 0.751, 0.78812, 0.79874, 0.81084, 0.83687, 0.88026,
-			0.87893, 0.88553, 0.89703, 0.89618, 0.90369, 0.90309, 0.90887, 0.92807, 0.94766, 0.9494, 0.9592, 0.9707,
-			0.99338, 0.12756, 0.0206, 0.41889, 0.42916, 0.96375, 0.87771, 0.62026, 0.68622, 0.69385, 0.04348, 0.02059,
-			0.0028, 0.62035, 0.14088, 0.14723, 0.74983, 0.53064 };
-	public static double yPoints[] = { 0.67776, 0.16801, 0.82481, 0.61442, 0.69217, 0.64757, 0.26416, 0.04154, 0.2887,
-			0.78791, 0.64127, 1.01297, 0.82789, 0.12763, 0.00756, 0.12677, 1.03616, 0.62739, 1.03847, 0.22171, 0.28649,
-			0.05674, 0.62035, 0.79312, 0.38954, 0.02321, 0.25107, 1.03482, 0.28726, 0.06358, 0.7662, 0.60964, 1.00907,
-			0.92162, 0.54653, 0.83715, 0.35909, 1.08106, 0.10941, 0.81585, 0.27403, 0.5368, 0.01155, 1.10513, 1.0284,
-			0.25503, 0.20907, 0.8572, 0.63017, 1.07868, 0.22738, 0.57804, 0.06451, 0.83966, 1.07604, 0.14425, 0.68472,
-			0.26778, 0.94136, 0.58055, 0.40719, 0.14429, 0.83459, 0.06358, 0.12437, 0.0112, 0.41773, 0.42715, 0.77237,
-			0.30351, 0.69834, 0.89576, 0.59392, 0.34658, 0, 0.2449, 0.74379, 0.67699, 0.06234, 0.62122, 0.01407,
-			0.61187, 0.00563, 0.07176, 0.18678, 0.20978, 0.71297, 0.96026, 1.03214, 0.89988, 0.89412, 0.94301, 0.96601,
-			0.99189, 1.0609, 1.1069, 0.64684, 0.84237, 0.01425};
+	ArrayList<Point> points = new ArrayList<Point>();
+	List<XYChart.Data<Number, Number>> solution = new ArrayList<>();
+
+	public boolean isShuffled = false;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -48,10 +41,46 @@ public class ConvexHullProject extends Application {
 	@Override
 	public void start(Stage stage) {
 
-		ScatterChart sc = createScatterChart();
+		File file = new File("./InputPoints.txt");
+
+		Scanner sc;
+		try {
+			sc = new Scanner(file);
+			int index = 0;
+
+			while (sc.hasNextLine()) {
+
+				float x = sc.nextFloat();
+				float y = sc.nextFloat();
+
+				Point p = new Point(x, y);
+				System.out.println("(" + p.x + ", " + p.y + ")");
+
+				points.add(index, p);
+				index++;
+			}
+
+			QuickHull qh = new QuickHull();
+			ArrayList<Point> p = qh.quickHull(points);
+			System.out.println("The points in the Convex hull using Quick Hull are: ");
+			for (int i = 0; i < p.size(); i++) {
+				solution.add(new XYChart.Data(p.get(i).x, p.get(i).y));
+				System.out.println("(" + p.get(i).x + ", " + p.get(i).y + ")");
+
+			}
+
+			sc.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Quick Hull Test");
+
+		ScatterChart scChart = createScatterChart(points);
 		LineChart li = createLineChart();
 
-		Scene scene = new Scene(layerCharts(sc, li));
+		Scene scene = new Scene(layerCharts(scChart, li));
 
 		stage.setScene(scene);
 		stage.setTitle("CSC 512 - Convex Hull Algorithm");
@@ -90,18 +119,18 @@ public class ConvexHullProject extends Application {
 		return axis;
 	}
 
-	private ScatterChart<Number, Number> createScatterChart() {
+	private ScatterChart<Number, Number> createScatterChart(ArrayList<Point> points) {
 		final ScatterChart<Number, Number> chart = new ScatterChart<>(createXaxis(), createYaxis());
 
 		XYChart.Series series1 = new XYChart.Series();
-		series1.setName("All points");
 
-		for (int i = 0; i < xPoints.length; i++) {
-			series1.getData().add(new XYChart.Data(xPoints[i], yPoints[i]));
+		for (int i = 0; i < points.size(); i++) {
+			series1.getData().add(new XYChart.Data(points.get(i).x, points.get(i).y));
 		}
 
 		chart.getData().addAll(series1);
-		chart.setPrefSize(500, 400);
+		chart.setMaxSize(500, 400);
+		chart.setLegendVisible(false);
 
 		return chart;
 	}
@@ -110,19 +139,8 @@ public class ConvexHullProject extends Application {
 		final LineChart<Number, Number> chart = new LineChart<>(createXaxis(), createYaxis());
 
 		chart.setCreateSymbols(false);
-
-		XYChart.Series series1 = new XYChart.Series();
-		series1.getData().add(new XYChart.Data(xPoints[4], yPoints[4]));
-		series1.getData().add(new XYChart.Data(xPoints[20], yPoints[20]));
-		series1.setName("Step 1");
-		chart.getData().addAll(series1);
-
-		XYChart.Series series2 = new XYChart.Series();
-		series2.getData().add(new XYChart.Data(xPoints[12], yPoints[12]));
-		series2.getData().add(new XYChart.Data(xPoints[18], yPoints[18]));
-		series2.setName("Step 2");
-		chart.getData().addAll(series2);
-		chart.setPrefSize(500, 400);
+		chart.setMaxSize(500, 400);
+		chart.setLegendVisible(false);
 
 		return chart;
 	}
@@ -146,28 +164,41 @@ public class ConvexHullProject extends Application {
 
 		final Button add = new Button("Next");
 		final Button remove = new Button("Previous");
+		final Button shuffle = new Button("Shuffle");
 
 		hbox.setSpacing(10);
-		hbox.getChildren().addAll(add, remove);
+		hbox.getChildren().addAll(add, remove, shuffle);
 
 		vbox.getChildren().addAll(li, hbox);
 		hbox.setPadding(new Insets(500, 500, 10, 50));
 
 		add.setOnAction(new EventHandler<ActionEvent>() {
+			int step = 0;
+
 			@Override
 			public void handle(ActionEvent e) {
 
 				if (li.getData() == null)
 					li.setData(FXCollections.<XYChart.Series<Number, Number>>observableArrayList());
 
-				for (int i = 0; i < 2; i++) {
-					XYChart.Series series = new XYChart.Series();
-					series.setName("Step " + (li.getData().size() + 1));
-					series.getData().add(new XYChart.Data(xPoints[17 + i], yPoints[17 + i]));
-					series.getData().add(new XYChart.Data(xPoints[27 + i], yPoints[27 + i]));
-					li.getData().add(series);
-					li.setPrefSize(500, 400);
+				if (isShuffled) {
+					step = 0;
+					isShuffled = false;
+				}
 
+				if ((step + 1) < solution.size()) {
+					XYChart.Series series = new XYChart.Series();
+
+					series.getData().add(solution.get(step));
+					series.getData().add(solution.get((step + 1)));
+
+					step++;
+					li.getData().add(series);
+					li.setLegendVisible(false);
+
+				} else {
+					step = 0;
+					li.getData().clear();
 				}
 			}
 		});
@@ -177,6 +208,27 @@ public class ConvexHullProject extends Application {
 			public void handle(ActionEvent e) {
 				if (!li.getData().isEmpty())
 					li.getData().remove((int) (Math.random() * (li.getData().size() - 1)));
+			}
+		});
+
+		shuffle.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+
+				isShuffled = true;
+				Collections.shuffle(points);
+				// Find solution again
+				QuickHull qh = new QuickHull();
+				ArrayList<Point> p = qh.quickHull(points);
+				System.out.println("-------- The solution after shuffle: ");
+				solution.clear();
+				for (int i = 0; i < p.size(); i++) {
+					solution.add(new XYChart.Data(p.get(i).x, p.get(i).y));
+					System.out.println("(" + p.get(i).x + ", " + p.get(i).y + ")");
+
+				}
+				li.getData().clear();
+
 			}
 		});
 
