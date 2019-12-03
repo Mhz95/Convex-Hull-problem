@@ -193,22 +193,22 @@ public class ConvexHullProject extends Application {
 					System.out.println("Normal: "+step);
 
 					series.getData().add(solution.get(step));
-					series.getData().add(solution.get((step + 1)));
-
+			
+					
 					step++;
+					
+					if ((step + 1) == solution.size()) {
+						series.getData().add(firstPoint);
+
+					} else {
+						series.getData().add(solution.get(step));
+					}
+					
+					System.out.println("X: "+ solution.get((step)).getXValue() + " Y: "+ solution.get((step)).getYValue());
+					
 					li.getData().add(series);
 					li.setLegendVisible(false);
 
-				} else if ((step + 1) == solution.size()) {
-					XYChart.Series lastLine = new XYChart.Series();
-					System.out.println("Last Line: "+step);
-
-					lastLine.getData().add(solution.get(step - 1));
-					lastLine.getData().add(firstPoint);
-
-					step++;
-					li.getData().add(lastLine);
-					li.setLegendVisible(false);
 				} else {
 					step = 0;
 					li.getData().clear();
