@@ -28,7 +28,6 @@ import javafx.stage.Stage;
 public class ConvexHullProject extends Application {
 
 	ArrayList<Point2D.Float> InputPoints = new ArrayList<Point2D.Float>();
-	List<XYChart.Data<Number, Number>> solution = new ArrayList<>();
 	ArrayList<Point2D.Float> ConvexHull_result = new ArrayList<Point2D.Float>();
 
 	public static void main(String[] args) {
@@ -234,33 +233,36 @@ public class ConvexHullProject extends Application {
 				if (li.getData() == null)
 					li.setData(FXCollections.<XYChart.Series<Number, Number>>observableArrayList());
 
+				if (step == 0) {
+					System.out.println("First Step In Solution:");
+				}
 
 				XYChart.Data firstPoint = new XYChart.Data(ConvexHull_result.get(0).x, ConvexHull_result.get(0).y);
+				XYChart.Series series = new XYChart.Series();
 
 				if ((step + 1) < ConvexHull_result.size()) {
-					XYChart.Series series = new XYChart.Series();
 
 					series.getData().add(new XYChart.Data(ConvexHull_result.get(step).x, ConvexHull_result.get(step).y));
 
 					step++;
 
-					if ((step + 1) == ConvexHull_result.size()) {
-						series.getData().add(firstPoint);
-
-					} else {
-						series.getData().add(new XYChart.Data(ConvexHull_result.get(step).x, ConvexHull_result.get(step).y));
-					}
-
+					series.getData().add(new XYChart.Data(ConvexHull_result.get(step).x, ConvexHull_result.get(step).y));
+					
+					
 					System.out.println(
 							"X: " + ConvexHull_result.get((step)).x + " Y: " + ConvexHull_result.get((step)).y);
 
-					li.getData().add(series);
-					li.setLegendVisible(false);
-
+				} else if ((step + 1) == ConvexHull_result.size()) {
+					series.getData().add(new XYChart.Data(ConvexHull_result.get(step).x, ConvexHull_result.get(step).y));
+					series.getData().add(firstPoint);
+					step++;
 				} else {
 					step = 0;
 					li.getData().clear();
 				}
+				
+				li.getData().add(series);
+				li.setLegendVisible(false);
 			}
 		});
 
