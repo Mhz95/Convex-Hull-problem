@@ -14,22 +14,34 @@ import javafx.geometry.Insets;
 import javafx.scene.*;
 import javafx.scene.chart.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 /**
  * Convex Hull Algorithm - Programming project
  * 
- * @Authors Alya Alshammari, Munerah H. Alzaidan, Norah Alshahrani, Shams Alshamasi 
+ * @Authors Alya Alshammari, Munerah H. Alzaidan, Norah Alshahrani, Shams
+ *          Alshamasi
  * @Supervisor Prof. M.B. Menai
  * @Copyrights King Saud University CSC 512 Algorithms
  * @since NOV 2019
  */
 public class ConvexHullProject extends Application {
 
+	ArrayList<Point2D.Float> visual_soln = new ArrayList<Point2D.Float>();
+
+	// Q1 Input & Output
 	ArrayList<Point2D.Float> InputPoints = new ArrayList<Point2D.Float>();
 	ArrayList<Point2D.Float> ConvexHull_result = new ArrayList<Point2D.Float>();
-
+	
+	// Q2 Input & Output
+	Point2D.Float A = new Point2D.Float(-0.04751f, 0.39252f); // source
+	Point2D.Float B = new Point2D.Float(1.11922f, 0.81579f); // destination
+	ArrayList<Point2D.Float> Shortest_Path_Around = new ArrayList<Point2D.Float>();
+	
+	boolean switched = false;
+	
 	public static void main(String[] args) {
 		launch(args);
 	}
@@ -63,11 +75,40 @@ public class ConvexHullProject extends Application {
 				// call visualizer and send InputPoints array
 				break;
 			default:
+
+				/**
+				 * Question 1: Find convex hull
+				 */
+				
+				System.out.println("--------------------------------------------------");
+				System.out.println("Question 1 Solution");
+				System.out.println("--------------------------------------------------");
+
 				QuickHull obj = new QuickHull();
 				ConvexHull_result = obj.quickHull(SortedInputPoints);
 				System.out.println("The points in the Convex hull using Quick Hull are: ");
 				for (int i = 0; i < ConvexHull_result.size(); i++)
 					System.out.println("(" + ConvexHull_result.get(i).x + ", " + ConvexHull_result.get(i).y + ")");
+
+				/**
+				 * Question 2: Shortest Path Around between A and B
+				 */
+
+				System.out.println("--------------------------------------------------");
+				System.out.println("Question 2 Solution");
+				System.out.println("--------------------------------------------------");
+
+				Shortest_Path_Around obj2 = new Shortest_Path_Around();
+
+				Shortest_Path_Around = obj2.quickHull(SortedInputPoints, A, B);
+				
+				System.out.println("The points in the Convex hull using Quick Hull are: ");
+				for (int i = 0; i < Shortest_Path_Around.size(); i++) {
+					System.out.println("test");
+					System.out
+							.println("(" + Shortest_Path_Around.get(i).x + ", " + Shortest_Path_Around.get(i).y + ")");
+				}
+
 				sc.close();
 			}
 		} catch (FileNotFoundException e) {
@@ -157,7 +198,7 @@ public class ConvexHullProject extends Application {
 	}
 
 	private NumberAxis createXaxis() {
-		final NumberAxis axis = new NumberAxis(0, 1, 0.2);
+		final NumberAxis axis = new NumberAxis(-0.2, 1.2, 0.2);
 
 		axis.setPrefWidth(35);
 		axis.setMinorTickCount(10);
@@ -210,21 +251,55 @@ public class ConvexHullProject extends Application {
 
 		StackPane stackpane = new StackPane();
 
+		ScatterChart sc = (ScatterChart) charts[0];
 		LineChart li = (LineChart) charts[1];
 
 		final VBox vbox = new VBox();
 		final HBox hbox = new HBox();
 
-		final Button add = new Button("Next");
-		final Button remove = new Button("Previous");
+		final Button next = new Button("Next");
+		final Button previous = new Button("Previous");
 
+		final RadioButton isQ1 = new RadioButton("Question 1");
+		final RadioButton isQ2 = new RadioButton("Question 2");  
+		
 		hbox.setSpacing(10);
-		hbox.getChildren().addAll(add, remove);
+		hbox.getChildren().addAll(next, previous, isQ1, isQ2);
 
 		vbox.getChildren().addAll(li, hbox);
 		hbox.setPadding(new Insets(500, 500, 10, 50));
+		
+		isQ1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				switched = true;
+				visual_soln = ConvexHull_result;
+				li.getData().clear();
+				sc.getData().clear();
+				XYChart.Series series1 = new XYChart.Series();
 
-		add.setOnAction(new EventHandler<ActionEvent>() {
+				for (int i = 0; i < InputPoints.size(); i++) {
+					series1.getData().add(new XYChart.Data(InputPoints.get(i).x, InputPoints.get(i).y));
+				}
+
+				sc.getData().addAll(series1);				
+				isQ2.setSelected(false);
+			}
+		});
+		isQ2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				switched = true;
+				visual_soln = Shortest_Path_Around;
+				li.getData().clear();
+				XYChart.Series series = new XYChart.Series();
+				series.getData().add(new XYChart.Data(A.x, A.y));
+				series.getData().add(new XYChart.Data(B.x, B.y));
+				sc.getData().add(series);
+				isQ1.setSelected(false);
+			}
+		});
+		next.setOnAction(new EventHandler<ActionEvent>() {
 			int step = 0;
 
 			@Override
@@ -233,47 +308,53 @@ public class ConvexHullProject extends Application {
 				if (li.getData() == null)
 					li.setData(FXCollections.<XYChart.Series<Number, Number>>observableArrayList());
 
+				if(switched) {
+					step = 0;
+					switched = false;
+				}
+				
 				if (step == 0) {
 					System.out.println("First Step In Solution:");
 				}
 
-				XYChart.Data firstPoint = new XYChart.Data(ConvexHull_result.get(0).x, ConvexHull_result.get(0).y);
+				XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
 				XYChart.Series series = new XYChart.Series();
 
-				if ((step + 1) < ConvexHull_result.size()) {
+				if ((step + 1) < visual_soln.size()) {
 
-					series.getData().add(new XYChart.Data(ConvexHull_result.get(step).x, ConvexHull_result.get(step).y));
+					series.getData()
+							.add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
 
 					step++;
 
-					series.getData().add(new XYChart.Data(ConvexHull_result.get(step).x, ConvexHull_result.get(step).y));
-					
-					
-					System.out.println(
-							"X: " + ConvexHull_result.get((step)).x + " Y: " + ConvexHull_result.get((step)).y);
+					series.getData()
+							.add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
 
-				} else if ((step + 1) == ConvexHull_result.size()) {
-					series.getData().add(new XYChart.Data(ConvexHull_result.get(step).x, ConvexHull_result.get(step).y));
+					System.out.println(
+							"X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+
+				} else if ((step + 1) == visual_soln.size()) {
+					series.getData()
+							.add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
 					series.getData().add(firstPoint);
 					step++;
 				} else {
 					step = 0;
 					li.getData().clear();
 				}
-				
+
 				li.getData().add(series);
 				li.setLegendVisible(false);
 			}
 		});
 
-		remove.setOnAction(new EventHandler<ActionEvent>() {
+		previous.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
 				if (!li.getData().isEmpty())
 					li.getData().remove((int) (Math.random() * (li.getData().size() - 1)));
 			}
 		});
-
 
 		stackpane.getChildren().addAll(charts);
 		stackpane.getChildren().add(vbox);
