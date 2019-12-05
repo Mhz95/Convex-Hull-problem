@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ConvexHull_Project;
 
 import java.awt.geom.Line2D;
@@ -21,7 +16,10 @@ public class Shortest_Path_Around {
     dynamically add points and remove points.
     */
     public ArrayList<Point2D.Float> quickHull(ArrayList<Point2D.Float> points , Point2D.Float A , Point2D.Float B) 
-    {
+    {   // add A& B to the sorted input set first
+    	points.add(0,A); //insert a at first position
+    	points.add(B); //append
+    	
         ArrayList<Point2D.Float> convexHull = new ArrayList<Point2D.Float>(); // convexHull list to store all points belong to the convexHull
         
         convexHull.add(A);
@@ -85,8 +83,8 @@ public class Shortest_Path_Around {
             Point2D.Float p1 = Lower_DSet.get(i);
             Point2D.Float p2 = Lower_DSet.get(i+1);
             
-            float p1p2x = (float) Math.pow(p1.x - p2.x,2);
-            float p1p2y = (float) Math.pow(p1.y - p2.y,2);
+            float p1p2x = (float) Math.pow(p2.x - p1.x,2);
+            float p1p2y = (float) Math.pow(p2.y - p1.y,2);
             float Distance_p1p2 = (float) Math.sqrt(p1p2x + p1p2y);
             Lower_Distance = Lower_Distance + Distance_p1p2;
         }
@@ -222,8 +220,3 @@ public class Shortest_Path_Around {
         return distance;
     }
 }
-
-
-
-    
-
