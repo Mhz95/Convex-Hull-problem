@@ -1,13 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ConvexHull_Project;
-
 /**
- *
- * @author Shams
+ * Convex Hull Algorithm - Programming project
+ * 
+ * @Authors Alya Alshammari, Munerah H. Alzaidan, Norah Alshahrani, Shams
+ *          Alshamasi
+ * @Supervisor Prof. M.B. Menai
+ * @Copyrights King Saud University CSC 512 Algorithms
+ * @since NOV 2019
  */
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -17,9 +16,9 @@ import java.awt.geom.*; // used for Line2D and Point2D
 public class QuickHull
 {
     /* quickHull function received the input points which extracted 
-    from the given figure and stored in a .txt file. The input points 
-    are stored in ArrayList called points.Choose an ArrayList to be
-    dynamically add points and remove points.
+    from the given figure and stored in a text file. 
+    The input points are stored in ArrayList called points.
+     ArrayList data structure has been chosen to add points and remove points dynamically .
     */
     public ArrayList<Point2D.Float> quickHull(ArrayList<Point2D.Float> points) 
     {
@@ -55,7 +54,7 @@ public class QuickHull
         Point2D.Float p2 = points.get(p2_index); // p2 with maximum x coordinate
         /*
         Adding the extreme points p1 and p2 to the convexHull list
-        and sending thier coordinates to the visualizer to draw line between them
+        and sending their coordinates to the visualizer to draw line between them
         */
         convexHull.add(p1);
         convexHull.add(p2);
@@ -68,7 +67,8 @@ public class QuickHull
  
         ArrayList<Point2D.Float> Upper_Set = new ArrayList<Point2D.Float>();
         ArrayList<Point2D.Float> Lower_Set = new ArrayList<Point2D.Float>();
- 
+       
+      //Find direction of a given point using point_position function
         for (int i = 0; i < points.size(); i++)
         {
             Point2D.Float p = points.get(i);
@@ -88,24 +88,24 @@ public class QuickHull
     public void FindHull(Point2D.Float p1, Point2D.Float p2, ArrayList<Point2D.Float> PointSet,
             ArrayList<Point2D.Float> convexhull)
     {
-        int insertPosition = convexhull.indexOf(p2);
-        if (PointSet.size() == 0)
+        int newIndex = convexhull.indexOf(p2);//New Index for a Point p 
+        if (PointSet.size() == 0) 
             return;
         if (PointSet.size() == 1) 
         {
             Point2D.Float p = PointSet.get(0);
             PointSet.remove(p);
-            convexhull.add(insertPosition, p);
+            convexhull.add(newIndex, p); //insert p between the extreme points 
             return;
         }
         /*
-        Find the P max , which is the furthest point from the line p1p2. By traversing the points
+        Find the Pmax , which is the farthest point from the line p1p2. By traversing the points
         and calculating the distance between each point in the set and the line p1p2.Finally keep the index
-        or position of the furthest point and add it to the convexHull and remove it from the points set.
+        or position of the farthest point and add it to the convexHull and remove it from the points set.
         */
         float Max_distance = Float.MIN_VALUE;
         float PMax_distance = Float.MIN_VALUE; // the distance between PMax and line p1p2
-        int PMax_index = -1; // index of the furthest point from the line p1p2.(index of P max)
+        int PMax_index = -1; // index of the farthest point from the line p1p2.(index of P max)
         
         for (int i = 0; i < PointSet.size(); i++)
         {
@@ -119,9 +119,9 @@ public class QuickHull
         }
         Point2D.Float PMax = PointSet.get(PMax_index);
         PointSet.remove(PMax_index);
-        convexhull.add(insertPosition, PMax);
+        convexhull.add(newIndex, PMax);
  
-        // identifying the pointe to the left of the line p1 p_max
+        // identifying the point to the left of the line p1 p_max
         ArrayList<Point2D.Float> leftSet_p1_pmax = new ArrayList<Point2D.Float>();
         for (int i = 0; i < PointSet.size(); i++)
         {
@@ -132,7 +132,7 @@ public class QuickHull
             }
         }
  
-      // identifying the pointe to the left of the line p_max p2
+      // identifying the point to the left of the line p_max p2
         ArrayList<Point2D.Float> leftSet_pmax_p2 = new ArrayList<Point2D.Float>();
         for (int i = 0; i < PointSet.size(); i++)
         {
@@ -156,19 +156,19 @@ public class QuickHull
     {
        float crossProduct = 0;
         
-        float p1p2x = p2.x - p1.x; 
+        float p2p1x = p2.x - p1.x; 
         float p2p1y = p2.y - p1.y;
-        float pp1y = p.y - p1.y;
         float pp1x = p.x - p1.x;
+        float pp1y = p.y - p1.y;
         
-        crossProduct = ( p1p2x * pp1y ) - ( p2p1y * pp1x ); 
+        crossProduct = ( p2p1x * pp1y ) - ( p2p1y * pp1x ); 
         
-        if (crossProduct > 0)
+        if (crossProduct > 0) // below
             return 1;
-        else if (crossProduct == 0)
+        else if (crossProduct == 0) //co-linear
             return 0;
         else
-            return -1;
+            return -1; //above
     }
     
     /*
@@ -187,7 +187,7 @@ public class QuickHull
         */
        float distance = (float) Line2D.ptSegDist(x1, y1, x2, y2, x3, y3); 
        
-       if (distance <0) // if the distance is negative taking the absloute value
+       if (distance <0) // if the distance is negative taking the absolute value
        {
          distance = Math.abs(distance);
        }   
