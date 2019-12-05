@@ -49,20 +49,20 @@ public class ConvexHullProject extends Application {
 	@Override
 	public void start(Stage stage) {
 
-		File file = new File("./InputPoints.txt");
+		File file = new File("C:\\Users\\alyam\\Desktop\\input.txt");
 		Scanner sc;
 		try {
 			sc = new Scanner(file);
 
-			while (sc.hasNextLine()) {
+			while (sc.hasNextLine()&& sc.hasNext()) { //hasNext() to handle some exceptions
 				float x = sc.nextFloat();
 				float y = sc.nextFloat();
 				Point2D.Float p = new Point2D.Float(x, y);
 				InputPoints.add(p);
 			}
-
+			// sort inputs according to their x coordinates
 			ArrayList<Point2D.Float> SortedInputPoints = MergeSort(InputPoints, InputPoints.size());
-
+			// Checking input size
 			switch (InputPoints.size()) {
 			case 0:
 				System.out.println(" No points found in the figure ");
@@ -71,8 +71,8 @@ public class ConvexHullProject extends Application {
 				System.out.println(" only one point in the figure cannot form a convexhull");
 				break;
 			case 2:
-				System.out.println(" Only 2 points in the figure can form a single vector ");
-				// call visualizer and send InputPoints array
+				System.out.println(" Only 2 points in the figure can form a single convexhull edge");
+				// call visualiser and send InputPoints array
 				break;
 			default:
 
@@ -102,9 +102,8 @@ public class ConvexHullProject extends Application {
 
 				Shortest_Path_Around = obj2.quickHull(SortedInputPoints, A, B);
 				
-				System.out.println("The points in the Convex hull using Quick Hull are: ");
+				System.out.println("The points that forms Shortest Path Around between A and B are: ");
 				for (int i = 0; i < Shortest_Path_Around.size(); i++) {
-					System.out.println("test");
 					System.out
 							.println("(" + Shortest_Path_Around.get(i).x + ", " + Shortest_Path_Around.get(i).y + ")");
 				}
@@ -115,7 +114,7 @@ public class ConvexHullProject extends Application {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Quick Hull Test");
+		System.out.println("Quick Hull Test"); // ??
 
 		ScatterChart scChart = createScatterChart(InputPoints);
 		LineChart li = createLineChart();
