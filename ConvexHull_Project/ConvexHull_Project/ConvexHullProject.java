@@ -49,7 +49,7 @@ public class ConvexHullProject extends Application {
 	@Override
 	public void start(Stage stage) {
 
-		File file = new File("C:\\Users\\alyam\\Desktop\\input.txt");
+		File file = new File("input.txt");
 		Scanner sc;
 		try {
 			sc = new Scanner(file);
