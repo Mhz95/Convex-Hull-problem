@@ -246,6 +246,8 @@ public class ConvexHullProject extends Application {
 		isQ1.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
+				label.setText("");
+
 				// Reset All
 				reset();
 
@@ -275,6 +277,8 @@ public class ConvexHullProject extends Application {
 		isQ2.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
+				label.setText("");
+
 				// Reset All
 				reset();
 
