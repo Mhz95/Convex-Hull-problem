@@ -14,6 +14,7 @@ import javafx.geometry.Insets;
 import javafx.scene.*;
 import javafx.scene.chart.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -29,19 +30,35 @@ import javafx.stage.Stage;
  */
 public class ConvexHullProject extends Application {
 
-	ArrayList<Point2D.Float> visual_soln = new ArrayList<Point2D.Float>();
-
-	// Q1 Input & Output
+	/**
+	 * Input variables
+	 */
 	ArrayList<Point2D.Float> InputPoints = new ArrayList<Point2D.Float>();
+	ArrayList<Point2D.Float> SortedInputPointsForQ1 = new ArrayList<Point2D.Float>();
+	ArrayList<Point2D.Float> SortedInputPointsForQ2 = new ArrayList<Point2D.Float>();
+
+	/**
+	 * Output variables
+	 */
 	ArrayList<Point2D.Float> ConvexHull_result = new ArrayList<Point2D.Float>();
-	
-	// Q2 Input & Output
+	ArrayList<Point2D.Float> Shortest_Path_Around = new ArrayList<Point2D.Float>();
+
+	/**
+	 * Points A and B for Q2
+	 */
 	Point2D.Float A = new Point2D.Float(-0.04751f, 0.39252f); // source
 	Point2D.Float B = new Point2D.Float(1.11922f, 0.81579f); // destination
-	ArrayList<Point2D.Float> Shortest_Path_Around = new ArrayList<Point2D.Float>();
-	
+
+	/**
+	 * To be shown in the visualizer
+	 */
+	ArrayList<Point2D.Float> visual_soln = new ArrayList<Point2D.Float>();
+
+	/**
+	 * witch Qs in the visualizer
+	 */
 	boolean switched = false;
-	
+
 	public static void main(String[] args) {
 		launch(args);
 	}
@@ -49,77 +66,36 @@ public class ConvexHullProject extends Application {
 	@Override
 	public void start(Stage stage) {
 
-		File file = new File("C:\\Users\\alyam\\Desktop\\input.txt");
+		/**
+		 * Read Input points from file
+		 */
+		File file = new File("./input.txt");
 		Scanner sc;
 		try {
 			sc = new Scanner(file);
 
-			while (sc.hasNextLine()&& sc.hasNext()) { //hasNext() to handle some exceptions
+			while (sc.hasNextLine() && sc.hasNext()) {
+				// hasNext() to handle some exceptions
 				float x = sc.nextFloat();
 				float y = sc.nextFloat();
 				Point2D.Float p = new Point2D.Float(x, y);
 				InputPoints.add(p);
 			}
-			// sort inputs according to their x coordinates
-			ArrayList<Point2D.Float> SortedInputPoints = MergeSort(InputPoints, InputPoints.size());
-			// Checking input size
-			switch (InputPoints.size()) {
-			case 0:
-				System.out.println(" No points found in the figure ");
-				break;
-			case 1:
-				System.out.println(" only one point in the figure cannot form a convexhull");
-				break;
-			case 2:
-				System.out.println(" Only 2 points in the figure can form a single convexhull edge");
-				// call visualiser and send InputPoints array
-				break;
-			default:
 
-				/**
-				 * Question 1: Find convex hull
-				 */
-				
-				System.out.println("--------------------------------------------------");
-				System.out.println("Question 1 Solution");
-				System.out.println("--------------------------------------------------");
+			sc.close();
 
-				QuickHull obj = new QuickHull();
-				ConvexHull_result = obj.quickHull(SortedInputPoints);
-				System.out.println("The points in the Convex hull using Quick Hull are: ");
-				for (int i = 0; i < ConvexHull_result.size(); i++)
-					System.out.println("(" + ConvexHull_result.get(i).x + ", " + ConvexHull_result.get(i).y + ")");
-
-				/**
-				 * Question 2: Shortest Path Around between A and B
-				 */
-
-				System.out.println("--------------------------------------------------");
-				System.out.println("Question 2 Solution");
-				System.out.println("--------------------------------------------------");
-
-				Shortest_Path_Around obj2 = new Shortest_Path_Around();
-
-				Shortest_Path_Around = obj2.quickHull(SortedInputPoints, A, B);
-				
-				System.out.println("The points that forms Shortest Path Around between A and B are: ");
-				for (int i = 0; i < Shortest_Path_Around.size(); i++) {
-					System.out
-							.println("(" + Shortest_Path_Around.get(i).x + ", " + Shortest_Path_Around.get(i).y + ")");
-				}
-
-				sc.close();
-			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Quick Hull Test"); // ??
 
+		/**
+		 * Initialize Charts and add them to scene
+		 */
 		ScatterChart scChart = createScatterChart(InputPoints);
 		LineChart li = createLineChart();
 
-		Scene scene = new Scene(layerCharts(scChart, li));
+		Scene scene = new Scene(layerCharts(scChart, li),600,500);
 
 		stage.setScene(scene);
 		stage.setTitle("CSC 512 - Convex Hull Algorithm");
@@ -127,6 +103,370 @@ public class ConvexHullProject extends Application {
 
 	}
 
+	/**
+	 * Reset All Arrays for visualization
+	 */
+	public void reset() {
+
+		SortedInputPointsForQ1.clear();
+		SortedInputPointsForQ2.clear();
+		Shortest_Path_Around.clear();
+		ConvexHull_result.clear();
+		visual_soln.clear();
+	}
+
+	/**
+	 * Question 1: Find convex hull
+	 */
+	public void solveQuestion1() {
+
+		System.out.println("--------------------------------------------------");
+		System.out.println("Question 1 Solution");
+		System.out.println("--------------------------------------------------");
+
+		switch (InputPoints.size()) {
+		case 0:
+			System.out.println(" No points found in the figure ");
+			break;
+		case 1:
+			System.out.println(" only one point in the figure cannot form a convexhull");
+			break;
+		case 2:
+			System.out.println(" Only 2 points in the figure can form a single convexhull edge");
+			// call visualizer and send InputPoints array
+			break;
+		default:
+
+			/**
+			 * Sort points using MergeSort
+			 */
+			SortedInputPointsForQ1 = MergeSort(InputPoints, InputPoints.size());
+
+			QuickHull obj = new QuickHull();
+			ConvexHull_result = obj.quickHull(SortedInputPointsForQ1);
+			System.out.println("The points in the Convex hull using Quick Hull are: ");
+			for (int i = 0; i < ConvexHull_result.size(); i++) {
+				System.out.println("(" + ConvexHull_result.get(i).x + ", " + ConvexHull_result.get(i).y + ")");
+			}
+			ArrayList<Point2D.Float> tmp = new ArrayList<Point2D.Float>();
+			tmp.addAll(ConvexHull_result);
+			visual_soln = tmp;
+
+		}
+	}
+
+	/**
+	 * Question 2: Shortest Path Around between A and B
+	 */
+	public void solveQuestion2() {
+
+		System.out.println("--------------------------------------------------");
+		System.out.println("Question 2 Solution");
+		System.out.println("--------------------------------------------------");
+
+		switch (InputPoints.size()) {
+		case 0:
+			System.out.println(" No points found in the figure ");
+			break;
+		case 1:
+			System.out.println(" only one point in the figure cannot form a convexhull");
+			break;
+		case 2:
+			System.out.println(" Only 2 points in the figure can form a single convexhull edge");
+			// call visualizer and send InputPoints array
+			break;
+		default:
+			/**
+			 * Sort points using MergeSort
+			 */
+			SortedInputPointsForQ2 = MergeSort(InputPoints, InputPoints.size());
+
+			Shortest_Path_Around obj2 = new Shortest_Path_Around();
+			Shortest_Path_Around = obj2.quickHull(SortedInputPointsForQ2, A, B);
+
+			System.out.println("The points that forms Shortest Path Around between A and B are: ");
+			for (int i = 0; i < Shortest_Path_Around.size(); i++) {
+				System.out.println("(" + Shortest_Path_Around.get(i).x + ", " + Shortest_Path_Around.get(i).y + ")");
+			}
+			ArrayList<Point2D.Float> tmp = new ArrayList<Point2D.Float>();
+			tmp.addAll(Shortest_Path_Around);
+			visual_soln = tmp;
+
+		}
+	}
+
+	/**
+	 * To stack charts as layers
+	 */
+	private VBox layerCharts(final XYChart<Number, Number>... charts) {
+		/**
+		 * Style Charts
+		 */
+		for (int i = 1; i < charts.length; i++) {
+			configureOverlayChart(charts[i]);
+		}
+
+		ScatterChart sc = (ScatterChart) charts[0];
+		LineChart li = (LineChart) charts[1];
+
+		/**
+		 * Add GUI components to scene
+		 */
+		StackPane stackpaneChart = new StackPane();
+		
+		final HBox hboxMiddle = new HBox();
+		final HBox hboxBottom = new HBox();
+
+		final Button next = new Button("Next");
+		final Button previous = new Button("Previous");
+
+		final RadioButton isQ1 = new RadioButton("Question 1");
+		final RadioButton isQ2 = new RadioButton("Question 2");
+
+		final Label label = new Label();
+
+		hboxMiddle.setSpacing(10);
+		hboxMiddle.setPadding(new Insets(15, 20, 10, 10));
+		hboxMiddle.getChildren().addAll(isQ1, isQ2, label);	
+		
+        StackPane stackpaneControlsTop = new StackPane();
+        stackpaneControlsTop.getChildren().addAll(hboxMiddle);
+        
+		hboxBottom.setSpacing(10);
+		hboxBottom.setPadding(new Insets(15, 20, 10, 10));
+		hboxBottom.getChildren().addAll(next, previous);	
+        
+        StackPane stackpaneControlsBottom = new StackPane();
+        stackpaneControlsBottom.getChildren().addAll(hboxBottom);
+       
+
+		/**
+		 * To handle Switch to Q1 in the visualizer
+		 */
+		isQ1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				// Reset All
+				reset();
+
+				// Find convexHull
+				solveQuestion1();
+
+				// Clear charts
+				li.getData().clear();
+				sc.getData().clear();
+
+				// Draw points
+				XYChart.Series series1 = new XYChart.Series();
+				for (int i = 0; i < InputPoints.size(); i++) {
+					series1.getData().add(new XYChart.Data(InputPoints.get(i).x, InputPoints.get(i).y));
+				}
+				sc.getData().addAll(series1);
+
+				// Toggle radio button
+				switched = true;
+				isQ2.setSelected(false);
+			}
+		});
+
+		/**
+		 * To handle Switch to Q2 in the visualizer
+		 */
+		isQ2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				// Reset All
+				reset();
+
+				// Find shortest path around
+				solveQuestion2();
+
+				// Clear charts
+				li.getData().clear();
+
+				// Add 2 points
+				XYChart.Series series = new XYChart.Series();
+				series.getData().add(new XYChart.Data(A.x, A.y));
+				series.getData().add(new XYChart.Data(B.x, B.y));
+				sc.getData().add(series);
+
+				// Toggle radio button
+				switched = true;
+				isQ1.setSelected(false);
+			}
+		});
+
+		/**
+		 * To handle (Next) button in the visualizer
+		 */
+		next.setOnAction(new EventHandler<ActionEvent>() {
+			int step = 0;
+
+			@Override
+			public void handle(ActionEvent e) {
+
+				if (visual_soln.size() == 0) {
+					System.out.println("Please select a question !");
+					label.setText("Please select a question !");
+				} else {
+					label.setText("Step : " + step);
+
+					// Reset on Qs switch
+					if (switched) {
+						step = 0;
+						switched = false;
+					}
+
+					// Logs the start of the solution
+					if (step == 0) {
+						System.out.println("--------------------------------------------------");
+						System.out.println("Visual Solution");
+						System.out.println("--------------------------------------------------");
+					}
+
+					// Store the first point to be able to connect the last point
+					XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
+					XYChart.Series series = new XYChart.Series();
+
+					if ((step + 1) < visual_soln.size()) {
+
+						// Line start point
+						series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+
+						step++;
+
+						// Line end point
+						series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+
+						System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+
+					} else if ((step + 1) == visual_soln.size()) {
+						// If it is the last line
+
+						// Line start point
+						series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+
+						// Line end point
+						series.getData().add(firstPoint);
+
+						step++;
+					} else {
+						// Reset on steps finish
+						step = 0;
+						li.getData().clear();
+					}
+
+					li.getData().add(series);
+					li.setLegendVisible(false);
+				}
+
+			}
+		});
+
+		/**
+		 * To handle (Previous) button in the visualizer
+		 */
+		previous.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				if (!li.getData().isEmpty())
+					li.getData().remove((int) (Math.random() * (li.getData().size() - 1)));
+			}
+		});
+
+        VBox vbox = new VBox();
+
+		stackpaneChart.getChildren().addAll(charts);
+        vbox.getChildren().addAll(stackpaneChart, stackpaneControlsTop, stackpaneControlsBottom);
+
+		return vbox;
+	}
+
+	/**
+	 * 
+	 * Charts methods
+	 * 
+	 */
+
+	/**
+	 * To set y coordinates
+	 */
+	private NumberAxis createYaxis() {
+		final NumberAxis axis = new NumberAxis(0, 1.15, 0.1);
+
+		axis.setPrefWidth(35);
+		axis.setMinorTickCount(10);
+
+		axis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(axis) {
+			@Override
+			public String toString(Number object) {
+				return String.format("%.1f", object.floatValue());
+			}
+		});
+
+		return axis;
+	}
+
+	/**
+	 * To set x coordinates
+	 */
+	private NumberAxis createXaxis() {
+		final NumberAxis axis = new NumberAxis(-0.2, 1.2, 0.2);
+
+		axis.setPrefWidth(35);
+		axis.setMinorTickCount(10);
+
+		axis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(axis) {
+			@Override
+			public String toString(Number object) {
+				return String.format("%.1f", object.floatValue());
+			}
+		});
+
+		return axis;
+	}
+
+	/**
+	 * To Create ScatterChart
+	 */
+	private ScatterChart<Number, Number> createScatterChart(ArrayList<Point2D.Float> points) {
+		final ScatterChart<Number, Number> chart = new ScatterChart<>(createXaxis(), createYaxis());
+
+		XYChart.Series series1 = new XYChart.Series();
+
+		for (int i = 0; i < points.size(); i++) {
+			series1.getData().add(new XYChart.Data(points.get(i).x, points.get(i).y));
+		}
+
+		chart.getData().addAll(series1);
+		chart.setMaxSize(500, 400);
+		chart.setLegendVisible(false);
+
+		return chart;
+	}
+
+	/**
+	 * To Create LineChart
+	 */
+	private LineChart<Number, Number> createLineChart() {
+		final LineChart<Number, Number> chart = new LineChart<>(createXaxis(), createYaxis());
+
+		chart.setCreateSymbols(false);
+		chart.setMaxSize(500, 400);
+		chart.setLegendVisible(false);
+
+		return chart;
+	}
+
+	/**
+	 * 
+	 * Sorting methods
+	 * 
+	 */
+
+	/**
+	 * Merge Sort
+	 */
 	public static ArrayList<Point2D.Float> MergeSort(ArrayList<Point2D.Float> InputPoints, int size) {
 		int Size_of_inputPoints = size;
 		if (Size_of_inputPoints > 1) {
@@ -151,6 +491,9 @@ public class ConvexHullProject extends Application {
 		return InputPoints;
 	}
 
+	/**
+	 * Merge
+	 */
 	public static ArrayList<Point2D.Float> Merge(ArrayList<Point2D.Float> subList1, ArrayList<Point2D.Float> subList2,
 			int n, int m) {
 		ArrayList<Point2D.Float> points = new ArrayList<Point2D.Float>();
@@ -180,187 +523,9 @@ public class ConvexHullProject extends Application {
 		return points;
 	}
 
-	private NumberAxis createYaxis() {
-		final NumberAxis axis = new NumberAxis(0, 1.15, 0.1);
-
-		axis.setPrefWidth(35);
-		axis.setMinorTickCount(10);
-
-		axis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(axis) {
-			@Override
-			public String toString(Number object) {
-				return String.format("%.1f", object.floatValue());
-			}
-		});
-
-		return axis;
-	}
-
-	private NumberAxis createXaxis() {
-		final NumberAxis axis = new NumberAxis(-0.2, 1.2, 0.2);
-
-		axis.setPrefWidth(35);
-		axis.setMinorTickCount(10);
-
-		axis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(axis) {
-			@Override
-			public String toString(Number object) {
-				return String.format("%.1f", object.floatValue());
-			}
-		});
-
-		return axis;
-	}
-
-	private ScatterChart<Number, Number> createScatterChart(ArrayList<Point2D.Float> points) {
-		final ScatterChart<Number, Number> chart = new ScatterChart<>(createXaxis(), createYaxis());
-
-		XYChart.Series series1 = new XYChart.Series();
-
-		for (int i = 0; i < points.size(); i++) {
-			series1.getData().add(new XYChart.Data(points.get(i).x, points.get(i).y));
-		}
-
-		chart.getData().addAll(series1);
-		chart.setMaxSize(500, 400);
-		chart.setLegendVisible(false);
-
-		return chart;
-	}
-
-	private LineChart<Number, Number> createLineChart() {
-		final LineChart<Number, Number> chart = new LineChart<>(createXaxis(), createYaxis());
-
-		chart.setCreateSymbols(false);
-		chart.setMaxSize(500, 400);
-		chart.setLegendVisible(false);
-
-		return chart;
-	}
-
-	private void setDefaultChartProperties(final XYChart<Number, Number> chart) {
-		chart.setLegendVisible(false);
-		chart.setAnimated(false);
-	}
-
-	private StackPane layerCharts(final XYChart<Number, Number>... charts) {
-		for (int i = 1; i < charts.length; i++) {
-			configureOverlayChart(charts[i]);
-		}
-
-		StackPane stackpane = new StackPane();
-
-		ScatterChart sc = (ScatterChart) charts[0];
-		LineChart li = (LineChart) charts[1];
-
-		final VBox vbox = new VBox();
-		final HBox hbox = new HBox();
-
-		final Button next = new Button("Next");
-		final Button previous = new Button("Previous");
-
-		final RadioButton isQ1 = new RadioButton("Question 1");
-		final RadioButton isQ2 = new RadioButton("Question 2");  
-		
-		hbox.setSpacing(10);
-		hbox.getChildren().addAll(next, previous, isQ1, isQ2);
-
-		vbox.getChildren().addAll(li, hbox);
-		hbox.setPadding(new Insets(500, 500, 10, 50));
-		
-		isQ1.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				switched = true;
-				visual_soln = ConvexHull_result;
-				li.getData().clear();
-				sc.getData().clear();
-				XYChart.Series series1 = new XYChart.Series();
-
-				for (int i = 0; i < InputPoints.size(); i++) {
-					series1.getData().add(new XYChart.Data(InputPoints.get(i).x, InputPoints.get(i).y));
-				}
-
-				sc.getData().addAll(series1);				
-				isQ2.setSelected(false);
-			}
-		});
-		isQ2.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				switched = true;
-				visual_soln = Shortest_Path_Around;
-				li.getData().clear();
-				XYChart.Series series = new XYChart.Series();
-				series.getData().add(new XYChart.Data(A.x, A.y));
-				series.getData().add(new XYChart.Data(B.x, B.y));
-				sc.getData().add(series);
-				isQ1.setSelected(false);
-			}
-		});
-		next.setOnAction(new EventHandler<ActionEvent>() {
-			int step = 0;
-
-			@Override
-			public void handle(ActionEvent e) {
-
-				if (li.getData() == null)
-					li.setData(FXCollections.<XYChart.Series<Number, Number>>observableArrayList());
-
-				if(switched) {
-					step = 0;
-					switched = false;
-				}
-				
-				if (step == 0) {
-					System.out.println("First Step In Solution:");
-				}
-
-				XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
-				XYChart.Series series = new XYChart.Series();
-
-				if ((step + 1) < visual_soln.size()) {
-
-					series.getData()
-							.add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-
-					step++;
-
-					series.getData()
-							.add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-
-					System.out.println(
-							"X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
-
-				} else if ((step + 1) == visual_soln.size()) {
-					series.getData()
-							.add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-					series.getData().add(firstPoint);
-					step++;
-				} else {
-					step = 0;
-					li.getData().clear();
-				}
-
-				li.getData().add(series);
-				li.setLegendVisible(false);
-			}
-		});
-
-		previous.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				if (!li.getData().isEmpty())
-					li.getData().remove((int) (Math.random() * (li.getData().size() - 1)));
-			}
-		});
-
-		stackpane.getChildren().addAll(charts);
-		stackpane.getChildren().add(vbox);
-
-		return stackpane;
-	}
-
+	/**
+	 * Styling Charts
+	 */
 	private void configureOverlayChart(final XYChart<Number, Number> chart) {
 		chart.setAlternativeRowFillVisible(false);
 		chart.setAlternativeColumnFillVisible(false);
