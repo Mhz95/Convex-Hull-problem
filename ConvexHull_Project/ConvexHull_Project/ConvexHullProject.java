@@ -144,13 +144,18 @@ public class ConvexHullProject extends Application {
 
 			QuickHull obj = new QuickHull();
 			ConvexHull_result = obj.quickHull(SortedInputPointsForQ1);
+			
 			System.out.println("The points in the Convex hull using Quick Hull are: ");
 			for (int i = 0; i < ConvexHull_result.size(); i++) {
 				System.out.println("(" + ConvexHull_result.get(i).x + ", " + ConvexHull_result.get(i).y + ")");
 			}
-			ArrayList<Point2D.Float> tmp = new ArrayList<Point2D.Float>();
-			tmp.addAll(ConvexHull_result);
-			visual_soln = tmp;
+	        Point2D.Float[] step = new Point2D.Float[3];
+	        step = obj.steps.get(0);
+	        
+			visual_soln.add(step[0]);
+			visual_soln.add(step[1]);
+			visual_soln.add(step[2]);
+
 
 		}
 	}
