@@ -20,8 +20,11 @@ public class QuickHull
     The input points are stored in ArrayList called points.
      ArrayList data structure has been chosen to add points and remove points dynamically .
     */
+	ArrayList<Point2D.Float[]> steps;
+	
     public ArrayList<Point2D.Float> quickHull(ArrayList<Point2D.Float> points) 
     {
+    	steps = new ArrayList<Point2D.Float[]>();
         ArrayList<Point2D.Float> convexHull = new ArrayList<Point2D.Float>(); // convexHull list to store all points belong to the convexHull
         /*
         Declaring the extreme x coordinates ( minimum x coordinate & maximum x coordinate )
@@ -120,7 +123,7 @@ public class QuickHull
         Point2D.Float PMax = PointSet.get(PMax_index);
         PointSet.remove(PMax_index);
         convexhull.add(newIndex, PMax);
- 
+        
         // identifying the point to the left of the line p1 p_max
         ArrayList<Point2D.Float> leftSet_p1_pmax = new ArrayList<Point2D.Float>();
         for (int i = 0; i < PointSet.size(); i++)
@@ -142,6 +145,12 @@ public class QuickHull
                 leftSet_pmax_p2.add(p);
             }
         }
+        Point2D.Float[] step = new Point2D.Float[3];
+        step[0] = PMax;
+        step[1] = p1;
+        step[2] = p2;
+        steps.add(step);
+        
         FindHull(p1, PMax, leftSet_p1_pmax, convexhull);
         FindHull(PMax, p2, leftSet_pmax_p2, convexhull);
  
@@ -193,6 +202,8 @@ public class QuickHull
        }   
         return distance;
     }
+    
+  
 }
 
 
