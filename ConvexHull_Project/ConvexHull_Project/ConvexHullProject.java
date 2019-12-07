@@ -17,6 +17,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /**
@@ -57,7 +59,7 @@ public class ConvexHullProject extends Application {
 	/**
 	 * witch Qs in the visualizer
 	 */
-	boolean switched = false;
+	int switched = 0;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -202,13 +204,14 @@ public class ConvexHullProject extends Application {
 		/**
 		 * Style Charts
 		 */
-		for (int i = 1; i < charts.length; i++) {
+		for (int i = 0; i < charts.length; i++) {
 			configureOverlayChart(charts[i]);
 		}
 
 		ScatterChart sc = (ScatterChart) charts[0];
 		LineChart li = (LineChart) charts[1];
 		ArrayList<Point2D.Float[]> steps = new ArrayList<Point2D.Float[]>();
+		XYChart.Series solnPoints = new XYChart.Series();
 
 
 		/**
@@ -220,12 +223,13 @@ public class ConvexHullProject extends Application {
 		final HBox hboxBottom = new HBox();
 
 		final Button next = new Button("Next");
-		final Button previous = new Button("Previous");
 
 		final RadioButton isQ1 = new RadioButton("Question 1");
 		final RadioButton isQ2 = new RadioButton("Question 2");
 
 		final Label label = new Label();
+		label.setFont(new Font("Arial", 18));
+	    label.setTextFill(Color.web("#0076a3"));
 
 		hboxMiddle.setSpacing(10);
 		hboxMiddle.setPadding(new Insets(15, 20, 10, 10));
@@ -236,7 +240,7 @@ public class ConvexHullProject extends Application {
         
 		hboxBottom.setSpacing(10);
 		hboxBottom.setPadding(new Insets(15, 20, 10, 10));
-		hboxBottom.getChildren().addAll(next, previous);	
+		hboxBottom.getChildren().addAll(next);	
         
         StackPane stackpaneControlsBottom = new StackPane();
         stackpaneControlsBottom.getChildren().addAll(hboxBottom);
@@ -264,11 +268,12 @@ public class ConvexHullProject extends Application {
 				XYChart.Series series1 = new XYChart.Series();
 				for (int i = 0; i < InputPoints.size(); i++) {
 					series1.getData().add(new XYChart.Data(InputPoints.get(i).x, InputPoints.get(i).y));
+
 				}
 				sc.getData().addAll(series1);
-
+				
 				// Toggle radio button
-				switched = true;
+				switched = 1;
 				isQ2.setSelected(false);
 			}
 		});
@@ -289,15 +294,23 @@ public class ConvexHullProject extends Application {
 
 				// Clear charts
 				li.getData().clear();
+				sc.getData().clear();
 
 				// Add 2 points
+				XYChart.Series series1 = new XYChart.Series();
+				for (int i = 0; i < InputPoints.size(); i++) {
+					series1.getData().add(new XYChart.Data(InputPoints.get(i).x, InputPoints.get(i).y));
+
+				}
+				sc.getData().addAll(series1);
+				
 				XYChart.Series series = new XYChart.Series();
 				series.getData().add(new XYChart.Data(A.x, A.y));
 				series.getData().add(new XYChart.Data(B.x, B.y));
 				sc.getData().add(series);
 
 				// Toggle radio button
-				switched = true;
+				switched = 2;
 				isQ1.setSelected(false);
 			}
 		});
@@ -326,16 +339,17 @@ public class ConvexHullProject extends Application {
 
 						label.setText("Step : " + (step + 1) + " | TriStep: "+ (triStep + 1));
 
+						
 						// Reset on Qs switch
-						if (switched) {
+						if (switched > 0) {
 							step = 0;
-							switched = false;
+							switched = 0;
 						}
 
 						// Logs the start of the solution
 						if (step == 0) {
 							System.out.println("--------------------------------------------------");
-							System.out.println("Visual Solution");
+							System.out.println("Visual Solution | TriStep "+ (triStep + 1));
 							System.out.println("--------------------------------------------------");
 						}
 					
@@ -344,16 +358,22 @@ public class ConvexHullProject extends Application {
 						XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
 						XYChart.Series series = new XYChart.Series();
 
+
 						if ((step + 1) < visual_soln.size()) {
 
 							// Line start point
 							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+							solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+							
+							System.out.println("Line "+ (step + 1));
+							System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
 
 							step++;
 
 							// Line end point
 							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-
+							solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+						
 							System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
 
 						} else if ((step + 1) == visual_soln.size()) {
@@ -361,13 +381,22 @@ public class ConvexHullProject extends Application {
 
 							// Line start point
 							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+							solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+							
+							System.out.println("Line "+ (step + 1));
+							System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
 
 							// Line end point
 							series.getData().add(firstPoint);
+							System.out.println("X: " + firstPoint.getXValue() + " Y: " + firstPoint.getYValue());
 
 
 							step++;
 						} else {
+							if(! sc.getData().contains(solnPoints)) {
+								sc.getData().add(solnPoints);
+							}
+
 							// Reset on steps finish
 							step = 0;
 							li.getData().clear();
@@ -378,21 +407,11 @@ public class ConvexHullProject extends Application {
 						li.setLegendVisible(false);
 					} else {
 						label.setText("Question 1 solved !");
+						solnPoints.getData().clear();
 					}
 
 				}
 
-			}
-		});
-
-		/**
-		 * To handle (Previous) button in the visualizer
-		 */
-		previous.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				if (!li.getData().isEmpty())
-					li.getData().remove((int) (Math.random() * (li.getData().size() - 1)));
 			}
 		});
 
