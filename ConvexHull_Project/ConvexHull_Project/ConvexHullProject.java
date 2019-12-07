@@ -208,10 +208,10 @@ public class ConvexHullProject extends Application {
 			configureOverlayChart(charts[i]);
 		}
 
-		ScatterChart sc = (ScatterChart) charts[0];
-		LineChart li = (LineChart) charts[1];
-		ArrayList<Point2D.Float[]> steps = new ArrayList<Point2D.Float[]>();
-		XYChart.Series solnPoints = new XYChart.Series();
+		final ScatterChart sc = (ScatterChart) charts[0];
+		final LineChart li = (LineChart) charts[1];
+		final ArrayList<Point2D.Float[]> steps = new ArrayList<Point2D.Float[]>();
+		final XYChart.Series solnPoints = new XYChart.Series();
 
 
 		/**
@@ -331,80 +331,92 @@ public class ConvexHullProject extends Application {
 				} else {
 					visual_soln.clear();
 					if(triStep < steps.size()) {
+						
 						Point2D.Float[] stepArr = steps.get(triStep);
 
-						visual_soln.add(stepArr[2]);
-						visual_soln.add(stepArr[1]);
-						visual_soln.add(stepArr[0]);
-
-						label.setText("Step : " + (step + 1) + " | TriStep: "+ (triStep + 1));
-
-						
-						// Reset on Qs switch
-						if (switched > 0) {
-							step = 0;
-							switched = 0;
-						}
-
-						// Logs the start of the solution
-						if (step == 0) {
-							System.out.println("--------------------------------------------------");
-							System.out.println("Visual Solution | TriStep "+ (triStep + 1));
-							System.out.println("--------------------------------------------------");
-						}
-					
-
-						// Store the first point to be able to connect the last point
-						XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
-						XYChart.Series series = new XYChart.Series();
-
-
-						if ((step + 1) < visual_soln.size()) {
-
-							// Line start point
-							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-							solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+						if(stepArr.length > 1) {
+							visual_soln.add(stepArr[2]);
+							visual_soln.add(stepArr[1]);
+							visual_soln.add(stepArr[0]);
 							
-							System.out.println("Line "+ (step + 1));
-							System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+							label.setText("Step : " + (step + 1) + " | TriStep: "+ (triStep + 1));
 
-							step++;
-
-							// Line end point
-							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-							solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-						
-							System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
-
-						} else if ((step + 1) == visual_soln.size()) {
-							// If it is the last line
-
-							// Line start point
-							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
-							solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
 							
-							System.out.println("Line "+ (step + 1));
-							System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+							// Reset on Qs switch
+							if (switched > 0) {
+								step = 0;
+								switched = 0;
+							}
 
-							// Line end point
-							series.getData().add(firstPoint);
-							System.out.println("X: " + firstPoint.getXValue() + " Y: " + firstPoint.getYValue());
+							// Logs the start of the solution
+							if (step == 0) {
+								System.out.println("--------------------------------------------------");
+								System.out.println("Visual Solution | TriStep "+ (triStep + 1));
+								System.out.println("--------------------------------------------------");
+							}
+						
+
+							// Store the first point to be able to connect the last point
+							XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
+							XYChart.Series series = new XYChart.Series();
 
 
-							step++;
+							if ((step + 1) < visual_soln.size()) {
+
+								// Line start point
+								series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+								solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+								
+								System.out.println("Line "+ (step + 1));
+								System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+
+								step++;
+
+								// Line end point
+								series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+								solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+							
+								System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+
+							} else if ((step + 1) == visual_soln.size()) {
+								// If it is the last line
+
+								// Line start point
+								series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+								solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+								
+								System.out.println("Line "+ (step + 1));
+								System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+
+								// Line end point
+								series.getData().add(firstPoint);
+								System.out.println("X: " + firstPoint.getXValue() + " Y: " + firstPoint.getYValue());
+
+
+								step++;
+							} else {
+								if(! sc.getData().contains(solnPoints)) {
+									sc.getData().add(solnPoints);
+								}
+
+								// Reset on steps finish
+								step = 0;
+								li.getData().clear();
+								triStep++;
+							}
+
+							li.getData().add(series);
+							li.setLegendVisible(false);
 						} else {
+							visual_soln.add(stepArr[0]);
+							solnPoints.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
 							if(! sc.getData().contains(solnPoints)) {
 								sc.getData().add(solnPoints);
 							}
-
-							// Reset on steps finish
 							step = 0;
-							li.getData().clear();
 							triStep++;
 						}
-
-						li.getData().add(series);
-						li.setLegendVisible(false);
+			
 					} else {
 						label.setText("Question 1 solved !");
 						solnPoints.getData().clear();

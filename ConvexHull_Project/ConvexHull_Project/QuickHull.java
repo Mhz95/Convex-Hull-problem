@@ -99,6 +99,9 @@ public class QuickHull
             Point2D.Float p = PointSet.get(0);
             PointSet.remove(p);
             convexhull.add(newIndex, p); //insert p between the extreme points 
+            Point2D.Float[] step = new Point2D.Float[1];
+            step[0] = p;
+            steps.add(step);
             return;
         }
         /*
@@ -150,7 +153,6 @@ public class QuickHull
         step[1] = p1;
         step[2] = p2;
         steps.add(step);
-        
         FindHull(p1, PMax, leftSet_p1_pmax, convexhull);
         FindHull(PMax, p2, leftSet_pmax_p2, convexhull);
  
