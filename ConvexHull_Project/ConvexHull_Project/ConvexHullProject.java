@@ -118,7 +118,7 @@ public class ConvexHullProject extends Application {
 	/**
 	 * Question 1: Find convex hull
 	 */
-	public void solveQuestion1() {
+	public ArrayList<Point2D.Float[]> solveQuestion1() {
 
 		System.out.println("--------------------------------------------------");
 		System.out.println("Question 1 Solution");
@@ -149,15 +149,10 @@ public class ConvexHullProject extends Application {
 			for (int i = 0; i < ConvexHull_result.size(); i++) {
 				System.out.println("(" + ConvexHull_result.get(i).x + ", " + ConvexHull_result.get(i).y + ")");
 			}
-	        Point2D.Float[] step = new Point2D.Float[3];
-	        step = obj.steps.get(0);
-	        
-			visual_soln.add(step[0]);
-			visual_soln.add(step[1]);
-			visual_soln.add(step[2]);
 
-
+			return obj.steps;
 		}
+		return null;
 	}
 
 	/**
@@ -213,6 +208,8 @@ public class ConvexHullProject extends Application {
 
 		ScatterChart sc = (ScatterChart) charts[0];
 		LineChart li = (LineChart) charts[1];
+		ArrayList<Point2D.Float[]> steps = new ArrayList<Point2D.Float[]>();
+
 
 		/**
 		 * Add GUI components to scene
@@ -257,7 +254,7 @@ public class ConvexHullProject extends Application {
 				reset();
 
 				// Find convexHull
-				solveQuestion1();
+				steps.addAll(solveQuestion1());
 
 				// Clear charts
 				li.getData().clear();
@@ -310,63 +307,79 @@ public class ConvexHullProject extends Application {
 		 */
 		next.setOnAction(new EventHandler<ActionEvent>() {
 			int step = 0;
+			int triStep = 0;
 
 			@Override
 			public void handle(ActionEvent e) {
 
-				if (visual_soln.size() == 0) {
+				if (steps.size() == 0) {
 					System.out.println("Please select a question !");
 					label.setText("Please select a question !");
 				} else {
-					label.setText("Step : " + step);
+					visual_soln.clear();
+					if(triStep < steps.size()) {
+						Point2D.Float[] stepArr = steps.get(triStep);
 
-					// Reset on Qs switch
-					if (switched) {
-						step = 0;
-						switched = false;
-					}
+						visual_soln.add(stepArr[2]);
+						visual_soln.add(stepArr[1]);
+						visual_soln.add(stepArr[0]);
 
-					// Logs the start of the solution
-					if (step == 0) {
-						System.out.println("--------------------------------------------------");
-						System.out.println("Visual Solution");
-						System.out.println("--------------------------------------------------");
-					}
+						label.setText("Step : " + (step + 1) + " | TriStep: "+ (triStep + 1));
 
-					// Store the first point to be able to connect the last point
-					XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
-					XYChart.Series series = new XYChart.Series();
+						// Reset on Qs switch
+						if (switched) {
+							step = 0;
+							switched = false;
+						}
 
-					if ((step + 1) < visual_soln.size()) {
+						// Logs the start of the solution
+						if (step == 0) {
+							System.out.println("--------------------------------------------------");
+							System.out.println("Visual Solution");
+							System.out.println("--------------------------------------------------");
+						}
+					
 
-						// Line start point
-						series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+						// Store the first point to be able to connect the last point
+						XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
+						XYChart.Series series = new XYChart.Series();
 
-						step++;
+						if ((step + 1) < visual_soln.size()) {
 
-						// Line end point
-						series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+							// Line start point
+							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
 
-						System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
+							step++;
 
-					} else if ((step + 1) == visual_soln.size()) {
-						// If it is the last line
+							// Line end point
+							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
 
-						// Line start point
-						series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+							System.out.println("X: " + visual_soln.get((step)).x + " Y: " + visual_soln.get((step)).y);
 
-						// Line end point
-						series.getData().add(firstPoint);
+						} else if ((step + 1) == visual_soln.size()) {
+							// If it is the last line
 
-						step++;
+							// Line start point
+							series.getData().add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+
+							// Line end point
+							series.getData().add(firstPoint);
+
+
+							step++;
+						} else {
+							// Reset on steps finish
+							step = 0;
+							li.getData().clear();
+							triStep++;
+						}
+
+						li.getData().add(series);
+						li.setLegendVisible(false);
 					} else {
-						// Reset on steps finish
-						step = 0;
-						li.getData().clear();
+						label.setText("Question 1 solved !");
 					}
 
-					li.getData().add(series);
-					li.setLegendVisible(false);
 				}
 
 			}
