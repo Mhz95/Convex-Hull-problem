@@ -36,6 +36,11 @@
     -fx-background-radius: 5px;
     -fx-padding: 5px;
 }
+.default-color2.chart-symbol { /* solid circle */
+    -fx-background-color: #22bad9;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
 /* .default-color5.chart-symbol { solid square
     -fx-background-color: #a9e200;
     -fx-background-radius: 0;
