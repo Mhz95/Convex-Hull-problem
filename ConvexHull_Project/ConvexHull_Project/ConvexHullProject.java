@@ -50,8 +50,8 @@ public class ConvexHullProject extends Application {
 	 * Points A and B for Q2
 	 */
 
-	Point2D.Float A = new Point2D.Float(-0.06f, 0.1f); // source
-	Point2D.Float B = new Point2D.Float(1.2f, 0.2f); // destination
+	Point2D.Float A = new Point2D.Float(-0.04751f, 0.39252f); // source
+	Point2D.Float B = new Point2D.Float(1.11922f, 0.81579f); // destination
 
 	/**
 	 * To be shown in the visualizer
