@@ -76,19 +76,19 @@ public class QuickHull
         {
             Point2D.Float p = points.get(i);
             if (point_position(p1, p2, p) == -1)
-                Upper_Set.add(p);
-            else if (point_position(p1, p2, p) == 1)
                 Lower_Set.add(p);
+            else if (point_position(p1, p2, p) == 1)
+                Upper_Set.add(p);
         }
-        FindHull(p1, p2, Lower_Set, convexHull);
-        FindHull(p2, p1, Upper_Set, convexHull);
+        FindConvexHull(p1, p2, Upper_Set, convexHull);
+        FindConvexHull(p2, p1, Lower_Set, convexHull);
  
         return convexHull;
     }
  
    
  
-    public void FindHull(Point2D.Float p1, Point2D.Float p2, ArrayList<Point2D.Float> PointSet,
+    public void FindConvexHull(Point2D.Float p1, Point2D.Float p2, ArrayList<Point2D.Float> PointSet,
             ArrayList<Point2D.Float> convexhull)
     {
         int newIndex = convexhull.indexOf(p2);//New Index for a Point p 
@@ -153,8 +153,8 @@ public class QuickHull
         step[1] = p1;
         step[2] = p2;
         steps.add(step);
-        FindHull(p1, PMax, leftSet_p1_pmax, convexhull);
-        FindHull(PMax, p2, leftSet_pmax_p2, convexhull);
+        FindConvexHull(p1, PMax, leftSet_p1_pmax, convexhull);
+        FindConvexHull(PMax, p2, leftSet_pmax_p2, convexhull);
  
     }
     

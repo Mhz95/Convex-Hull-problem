@@ -16,6 +16,7 @@ import javafx.scene.chart.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -48,8 +49,9 @@ public class ConvexHullProject extends Application {
 	/**
 	 * Points A and B for Q2
 	 */
-	Point2D.Float A = new Point2D.Float(-0.04751f, 0.39252f); // source
-	Point2D.Float B = new Point2D.Float(1.11922f, 0.81579f); // destination
+
+	Point2D.Float A = new Point2D.Float(-0.06f, 0.1f); // source
+	Point2D.Float B = new Point2D.Float(1.2f, 0.2f); // destination
 
 	/**
 	 * To be shown in the visualizer
@@ -60,6 +62,7 @@ public class ConvexHullProject extends Application {
 	 * witch Qs in the visualizer
 	 */
 	boolean switched = false;
+	boolean fileUpdated = false;
 	int q = 0;
 
 	public static void main(String[] args) {
@@ -118,61 +121,34 @@ public class ConvexHullProject extends Application {
 		visual_soln.clear();
 	}
 
-	/**
-	 * Question 1: Find convex hull
-	 */
-	public ArrayList<Point2D.Float[]> solveQuestion1() {
+	public boolean updateInputPoints(String filepath) {
+		/**
+		 * Read Input points from file
+		 */
+		if (filepath != null && !filepath.isEmpty()) {
+			InputPoints.clear();
+			File file = new File(filepath);
+			Scanner sc;
+			try {
+				sc = new Scanner(file);
 
-		System.out.println("--------------------------------------------------");
-		System.out.println("Question 1 Solution");
-		System.out.println("--------------------------------------------------");
+				while (sc.hasNextLine() && sc.hasNext()) {
+					// hasNext() to handle some exceptions
+					float x = sc.nextFloat();
+					float y = sc.nextFloat();
+					Point2D.Float p = new Point2D.Float(x, y);
+					InputPoints.add(p);
+				}
 
-		if (InputPoints.size() > 2) {
-			/**
-			 * Sort points using MergeSort
-			 */
-			SortedInputPointsForQ1 = MergeSort(InputPoints, InputPoints.size());
-
-			QuickHull obj = new QuickHull();
-			ConvexHull_result = obj.quickHull(SortedInputPointsForQ1);
-
-			System.out.println("The points in the Convex hull using Quick Hull are: ");
-			for (int i = 0; i < ConvexHull_result.size(); i++) {
-				System.out.println("(" + ConvexHull_result.get(i).x + ", " + ConvexHull_result.get(i).y + ")");
+				sc.close();
+				return true;
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
-			return obj.steps;
 		}
-		return null;
-	}
 
-	/**
-	 * Question 2: Shortest Path Around between A and B
-	 */
-	public void solveQuestion2() {
-
-		System.out.println("--------------------------------------------------");
-		System.out.println("Question 2 Solution");
-		System.out.println("--------------------------------------------------");
-
-		if (InputPoints.size() > 2) {
-			/**
-			 * Sort points using MergeSort
-			 */
-			SortedInputPointsForQ2 = MergeSort(InputPoints, InputPoints.size());
-
-			Shortest_Path_Around obj2 = new Shortest_Path_Around();
-			Shortest_Path_Around = obj2.quickHull(SortedInputPointsForQ2, A, B);
-
-			System.out.println("The points that forms Shortest Path Around between A and B are: ");
-			for (int i = 0; i < Shortest_Path_Around.size(); i++) {
-				System.out.println("(" + Shortest_Path_Around.get(i).x + ", " + Shortest_Path_Around.get(i).y + ")");
-			}
-			ArrayList<Point2D.Float> tmp = new ArrayList<Point2D.Float>();
-			tmp.addAll(Shortest_Path_Around);
-			visual_soln = tmp;
-
-		}
+		return false;
 	}
 
 	/**
@@ -196,10 +172,12 @@ public class ConvexHullProject extends Application {
 		 */
 		StackPane stackpaneChart = new StackPane();
 
+		final HBox hboxTop = new HBox();
 		final HBox hboxMiddle = new HBox();
 		final HBox hboxBottom = new HBox();
 
 		final Button next = new Button("Next");
+		final Button update = new Button("Update");
 
 		final RadioButton isQ1 = new RadioButton("Question 1");
 		final RadioButton isQ2 = new RadioButton("Question 2");
@@ -209,6 +187,16 @@ public class ConvexHullProject extends Application {
 		label.setTextFill(Color.web("#0076a3"));
 		label.setWrapText(true);
 		label.setPrefWidth(300);
+
+		final Label fileLabel = new Label("Enter points file path: ");
+		final TextField inputFilePath = new TextField();
+
+		hboxTop.setSpacing(10);
+		hboxTop.setPadding(new Insets(15, 20, 10, 10));
+		hboxTop.getChildren().addAll(fileLabel, inputFilePath, update);
+
+		StackPane stackpaneTop = new StackPane();
+		stackpaneTop.getChildren().addAll(hboxTop);
 
 		hboxMiddle.setSpacing(10);
 		hboxMiddle.setPadding(new Insets(15, 20, 10, 10));
@@ -223,6 +211,36 @@ public class ConvexHullProject extends Application {
 
 		StackPane stackpaneControlsBottom = new StackPane();
 		stackpaneControlsBottom.getChildren().addAll(hboxBottom);
+		/**
+		 * To handle update input points
+		 */
+		update.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				if (updateInputPoints(inputFilePath.getText())) {
+					label.setText("Input points updated !");
+
+					reset();
+					fileUpdated = true;
+					switched = true;
+					q = 0;
+					isQ1.setSelected(false);
+					isQ2.setSelected(false);
+
+					li.getData().clear();
+					sc.getData().clear();
+					solnPoints.getData().clear();
+					// Draw points
+					XYChart.Series series1 = new XYChart.Series();
+					for (int i = 0; i < InputPoints.size(); i++) {
+						series1.getData().add(new XYChart.Data(InputPoints.get(i).x, InputPoints.get(i).y));
+
+					}
+					sc.getData().addAll(series1);
+				}
+
+			}
+		});
 
 		/**
 		 * To handle Switch to Q1 in the visualizer
@@ -234,6 +252,7 @@ public class ConvexHullProject extends Application {
 
 				// Reset All
 				reset();
+				steps.clear();
 
 				// Find convexHull
 				ArrayList<Point2D.Float[]> soln = solveQuestion1();
@@ -320,9 +339,38 @@ public class ConvexHullProject extends Application {
 				case 2:
 					System.out.println("Only 2 points in the figure can form a single convexhull edge");
 					label.setText("Only 2 points in the figure can form a single convexhull edge");
+					if (q == 1) {
+						solnPoints.getData().clear();
+						XYChart.Series twopoints = new XYChart.Series();
+						twopoints.getData().add(new XYChart.Data(InputPoints.get(0).x, InputPoints.get(0).y));
+						twopoints.getData().add(new XYChart.Data(InputPoints.get(1).x, InputPoints.get(1).y));
+						solnPoints.getData().add(new XYChart.Data(InputPoints.get(0).x, InputPoints.get(0).y));
+						solnPoints.getData().add(new XYChart.Data(InputPoints.get(1).x, InputPoints.get(1).y));
+						li.getData().add(twopoints);
+						li.setLegendVisible(false);
+						if (!sc.getData().contains(solnPoints)) {
+							sc.getData().add(solnPoints);
+						}
+					} else if (q == 2) {
+						solnPoints.getData().clear();
+						XYChart.Series twopoints2 = new XYChart.Series();
+						twopoints2.getData().add(new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y));
+						twopoints2.getData().add(new XYChart.Data(visual_soln.get(1).x, visual_soln.get(1).y));
+						solnPoints.getData().add(new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y));
+						solnPoints.getData().add(new XYChart.Data(visual_soln.get(1).x, visual_soln.get(1).y));
+						li.getData().add(twopoints2);
+						li.setLegendVisible(false);
+						if (!sc.getData().contains(solnPoints)) {
+							sc.getData().add(solnPoints);
+						}
+					}
 					break;
 				default:
 					if (q == 1) {
+						if (fileUpdated) {
+							triStep = 0;
+							fileUpdated = false;
+						}
 						if (steps.size() == 0) {
 							System.out.println("Please input more points !");
 							label.setText("Please input more points !");
@@ -416,6 +464,7 @@ public class ConvexHullProject extends Application {
 									visual_soln.add(stepArr[0]);
 									solnPoints.getData()
 											.add(new XYChart.Data(visual_soln.get(step).x, visual_soln.get(step).y));
+
 									if (!sc.getData().contains(solnPoints)) {
 										sc.getData().add(solnPoints);
 									}
@@ -423,9 +472,41 @@ public class ConvexHullProject extends Application {
 									triStep++;
 								}
 
-							} else {
+							} else if (triStep == steps.size()) {
 								label.setText("Question 1 solved !");
+
+								visual_soln.addAll(ConvexHull_result);
+
+								XYChart.Data firstPoint = new XYChart.Data(visual_soln.get(0).x, visual_soln.get(0).y);
+								int k = 0;
+								while (k < visual_soln.size()) {
+									XYChart.Series seriesAll = new XYChart.Series();
+
+									if ((k + 1) < visual_soln.size()) {
+
+										seriesAll.getData()
+												.add(new XYChart.Data(visual_soln.get(k).x, visual_soln.get(k).y));
+										k++;
+
+										seriesAll.getData()
+												.add(new XYChart.Data(visual_soln.get(k).x, visual_soln.get(k).y));
+
+									} else if ((k + 1) == visual_soln.size()) {
+										seriesAll.getData()
+												.add(new XYChart.Data(visual_soln.get(k).x, visual_soln.get(k).y));
+										seriesAll.getData().add(firstPoint);
+										k++;
+									}
+									li.getData().add(seriesAll);
+									li.setLegendVisible(false);
+								}
+
 								solnPoints.getData().clear();
+								triStep++;
+							} else {
+								triStep = 0;
+								step = 0;
+								li.getData().clear();
 							}
 
 						}
@@ -503,9 +584,70 @@ public class ConvexHullProject extends Application {
 		VBox vbox = new VBox();
 
 		stackpaneChart.getChildren().addAll(charts);
-		vbox.getChildren().addAll(stackpaneChart, stackpaneControlsTop, stackpaneControlsBottom);
+		vbox.getChildren().addAll(stackpaneTop, stackpaneChart, stackpaneControlsTop, stackpaneControlsBottom);
 
 		return vbox;
+	}
+
+	/**
+	 * Question 1: Find convex hull
+	 */
+	public ArrayList<Point2D.Float[]> solveQuestion1() {
+
+		System.out.println("--------------------------------------------------");
+		System.out.println("Question 1 Solution");
+		System.out.println("--------------------------------------------------");
+
+		if (InputPoints.size() > 2) {
+			/**
+			 * Sort points using MergeSort
+			 */
+			SortedInputPointsForQ1 = MergeSort(InputPoints, InputPoints.size());
+
+			QuickHull obj = new QuickHull();
+			ConvexHull_result = obj.quickHull(SortedInputPointsForQ1);
+
+			System.out.println("The points in the Convex hull using Quick Hull are: ");
+			for (int i = 0; i < ConvexHull_result.size(); i++) {
+				System.out.println("(" + ConvexHull_result.get(i).x + ", " + ConvexHull_result.get(i).y + ")");
+			}
+
+			return obj.steps;
+		}
+		return null;
+	}
+
+	/**
+	 * Question 2: Shortest Path Around between A and B
+	 */
+	public void solveQuestion2() {
+
+		System.out.println("--------------------------------------------------");
+		System.out.println("Question 2 Solution");
+		System.out.println("--------------------------------------------------");
+
+		if (InputPoints.size() >= 2) {
+			/**
+			 * Sort points using MergeSort
+			 */
+
+			InputPoints.add(A);
+			InputPoints.add(B);
+
+			SortedInputPointsForQ2 = MergeSort(InputPoints, InputPoints.size());
+
+			Shortest_Path_Around obj2 = new Shortest_Path_Around();
+			Shortest_Path_Around = obj2.quickHull(SortedInputPointsForQ2);
+
+			System.out.println("The points that forms Shortest Path Around between A and B are: ");
+			for (int i = 0; i < Shortest_Path_Around.size(); i++) {
+				System.out.println("(" + Shortest_Path_Around.get(i).x + ", " + Shortest_Path_Around.get(i).y + ")");
+			}
+			ArrayList<Point2D.Float> tmp = new ArrayList<Point2D.Float>();
+			tmp.addAll(Shortest_Path_Around);
+			visual_soln = tmp;
+
+		}
 	}
 
 	/**
