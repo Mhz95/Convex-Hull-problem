@@ -128,7 +128,8 @@ End ShortestPathAround
 
 Alya Alshammari, Munerah Al-Zaidan, Nourah Al-Shahrani, Shams Al-Shamasi  
 
-Supervisor: Dr. Mohammed Menai  
-Course: Algorithms Design and Analysis (CSC 512), KSU
-
-November 2019
+> Developed as part of a Computer Science MSc course   
+> Supervisor: Dr. Mohammed Menai  
+> Course: CSC512: Algorithms Design and Analysis  
+> King Saud university   
+> November 2019
